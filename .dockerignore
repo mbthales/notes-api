@@ -1,0 +1,7 @@
+Dockefile
+docker-compose.yml
+node_modules
+.gitignore
+.prettierrc
+.editorconfig
+pgdata
