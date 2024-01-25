@@ -1,12 +1,16 @@
-FROM oven/bun:1-slim
+FROM node:20.11.0-alpine
 
 WORKDIR /app
 
-COPY bun.lockb .
+RUN npm install -g pnpm
+
+COPY pnpm-lock.yaml .
 COPY package.json .
 
-RUN bun install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-CMD ["bun", "dev"]
+EXPOSE 3000
+
+CMD ["pnpm", "dev"]

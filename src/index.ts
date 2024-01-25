@@ -1,16 +1,11 @@
-import { PrismaClient } from '@prisma/client'
+import fastify from 'fastify'
 
-const prisma = new PrismaClient()
+const app = fastify()
 
-const main = async () => {
-	const user = await prisma.user.create({
-		data: {
-			username: 'thales',
-			password: 'teste',
-		},
-	})
-
-	console.log(user)
-}
-
-main()
+app.listen({ port: 3000 }, (err, address) => {
+	if (err) {
+		console.error(err)
+		process.exit(1)
+	}
+	console.log(`Server listening at ${address}`)
+})
