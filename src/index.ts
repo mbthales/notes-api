@@ -1,9 +1,10 @@
 import fastify from 'fastify'
-import { signupController } from './controllers/auth'
+import { signupController, signinController } from './controllers/auth'
 
 const app = fastify()
 
 signupController(app)
+signinController(app)
 
 app.listen({ port: 4000, host: '0.0.0.0' }, (err, address) => {
 	if (err) {

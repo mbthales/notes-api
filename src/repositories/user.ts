@@ -9,3 +9,13 @@ export const createUserRepository = async (data: CreateUserI) => {
 
 	return user
 }
+
+export const findUserByUsernameRepository = async (username: string) => {
+	const user = await prisma.user.findUnique({
+		where: {
+			username,
+		},
+	})
+
+	return user
+}

@@ -1,14 +1,16 @@
-import { hash } from 'bcryptjs'
-import { Prisma } from '@prisma/client'
+import { hash, compare } from 'bcryptjs'
 
-import { signupSchema } from '../validators/auth'
-import { createUserRepository } from '../repositories/user'
+import { authSchema } from '../validators/auth'
+import {
+	findUserByUsernameRepository,
+	createUserRepository,
+} from '../repositories/user'
 
 import type { FastifyReply } from 'fastify'
 
 export const signupService = async (body: unknown, reply: FastifyReply) => {
 	try {
-		const validatedBody = signupSchema.safeParse(body)
+		const validatedBody = authSchema.safeParse(body)
 
 		if (!validatedBody.success) {
 			reply.status(400).send({
@@ -21,6 +23,16 @@ export const signupService = async (body: unknown, reply: FastifyReply) => {
 
 		const { username, password } = validatedBody.data
 
+		const user = await findUserByUsernameRepository(username)
+
+		if (user) {
+			reply.status(409).send({
+				error: 'Username already exists',
+			})
+
+			return
+		}
+
 		const hashedPassword = await hash(password, 10)
 
 		await createUserRepository({
@@ -32,16 +44,53 @@ export const signupService = async (body: unknown, reply: FastifyReply) => {
 			msg: 'User created',
 		})
 	} catch (err) {
-		if (err instanceof Prisma.PrismaClientKnownRequestError) {
-			if (err.code === 'P2002') {
-				reply.status(409).send({
-					err: 'Username already exists',
-				})
+		console.error(err)
 
-				return
-			}
+		reply.status(500).send({
+			error: 'Internal server error',
+		})
+	}
+}
+
+export const signinService = async (body: unknown, reply: FastifyReply) => {
+	try {
+		const validatedBody = authSchema.safeParse(body)
+
+		if (!validatedBody.success) {
+			reply.status(400).send({
+				error: 'Invalid body',
+				details: validatedBody.error.issues,
+			})
+
+			return
 		}
 
+		const { username, password } = validatedBody.data
+
+		const user = await findUserByUsernameRepository(username)
+
+		if (!user) {
+			reply.status(401).send({
+				error: 'Invalid credentials',
+			})
+
+			return
+		}
+
+		const isPasswordValid = await compare(password, user.password)
+
+		if (!isPasswordValid) {
+			reply.status(401).send({
+				error: 'Invalid credentials',
+			})
+
+			return
+		}
+
+		reply.status(200).send({
+			msg: 'User authenticated',
+		})
+	} catch (err) {
 		console.error(err)
 
 		reply.status(500).send({
