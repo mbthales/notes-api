@@ -5,6 +5,7 @@ import {
 	findUserByUsernameRepository,
 	createUserRepository,
 } from '../repositories/user'
+import { createJwtToken } from '../utils/jwt'
 
 import type { FastifyReply } from 'fastify'
 
@@ -86,6 +87,12 @@ export const signinService = async (body: unknown, reply: FastifyReply) => {
 
 			return
 		}
+
+		const token = await createJwtToken(username, user.id)
+
+		reply.headers({
+			authorization: `Bearer ${token}`,
+		})
 
 		reply.status(200).send({
 			msg: 'User authenticated',
