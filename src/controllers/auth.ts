@@ -1,6 +1,6 @@
-import type { FastifyInstance } from 'fastify'
-
 import { signupService, signinService } from '../services/auth'
+
+import type { FastifyInstance } from 'fastify'
 
 export const signupController = (app: FastifyInstance) => {
 	app.post('/signup', async (req, reply) => {
