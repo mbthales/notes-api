@@ -1,16 +1,10 @@
 import fastify from 'fastify'
-import { signupController, signinController } from './controllers/auth'
-import {
-	createNoteController,
-	getUserNotesController,
-} from './controllers/note'
+
+import { routes } from './routes'
 
 const app = fastify()
 
-signupController(app)
-signinController(app)
-createNoteController(app)
-getUserNotesController(app)
+routes(app)
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
 	if (err) {

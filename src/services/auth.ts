@@ -14,12 +14,10 @@ export const signupService = async (body: unknown, reply: FastifyReply) => {
 		const validatedBody = authSchema.safeParse(body)
 
 		if (!validatedBody.success) {
-			reply.status(400).send({
+			return reply.status(400).send({
 				error: 'Invalid body',
 				details: validatedBody.error.issues,
 			})
-
-			return
 		}
 
 		const { username, password } = validatedBody.data
@@ -27,11 +25,9 @@ export const signupService = async (body: unknown, reply: FastifyReply) => {
 		const user = await findUserByUsernameRepository(username)
 
 		if (user) {
-			reply.status(409).send({
+			return reply.status(409).send({
 				error: 'Username already exists',
 			})
-
-			return
 		}
 
 		const hashedPassword = await hash(password, 10)
@@ -58,12 +54,10 @@ export const signinService = async (body: unknown, reply: FastifyReply) => {
 		const validatedBody = authSchema.safeParse(body)
 
 		if (!validatedBody.success) {
-			reply.status(400).send({
+			return reply.status(400).send({
 				error: 'Invalid body',
 				details: validatedBody.error.issues,
 			})
-
-			return
 		}
 
 		const { username, password } = validatedBody.data
@@ -71,11 +65,9 @@ export const signinService = async (body: unknown, reply: FastifyReply) => {
 		const user = await findUserByUsernameRepository(username)
 
 		if (!user) {
-			reply.status(401).send({
+			return reply.status(401).send({
 				error: 'Invalid credentials',
 			})
-
-			return
 		}
 
 		const isPasswordValid = await compare(password, user.password)
